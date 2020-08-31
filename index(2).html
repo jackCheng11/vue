@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #container {
+            width: 500px;
+            height: 275px;
+            outline: 2px solid salmon;
+            position: absolute;
+            left: 50%;
+            top: 150px;
+            margin: 0 0 0 -250px;
+            overflow: hidden;
+        }
+
+        #slider-list {
+            width: 3500px;
+            position: absolute;
+            top: 0;
+            left: -500px;
+        }
+
+        .slider-item {
+            display: block;
+            float: left;
+        }
+
+        #btn-prev,
+        #btn-next {
+            position: absolute;
+            width: 50px;
+            top: 108px;
+            cursor: pointer;
+        }
+
+        #btn-prev {
+            left: 5px;
+        }
+
+        #btn-next {
+            right: 5px;
+            transform: rotate(180deg);
+        }
+
+        .btn-hide {
+            display: none;
+        }
+
+        .btn-show {
+            display: block;
+        }
+        .indicator-item{
+            width: 25px;
+            height: 6px;
+            background-color: azure;
+            display: inline-block;
+            margin: 2px;
+            cursor: pointer;
+        }
+        #slider-indicator{
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            margin-left: -82px;
+        }
+        .indicator-active{
+            background-color: brown;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div id="slider-list">
+            <img src="./images/5.jpg" alt="" class="slider-item">
+            <img src="./images/1.jpg" alt="" class="slider-item">
+            <img src="./images/2.jpg" alt="" class="slider-item">
+            <img src="./images/3.jpg" alt="" class="slider-item">
+            <img src="./images/4.jpg" alt="" class="slider-item">
+            <img src="./images/5.jpg" alt="" class="slider-item">
+            <img src="./images/1.jpg" alt="" class="slider-item">
+        </div>
+        <div id="slider-btn">
+            <img src="./images/left.svg" alt="" class="btn-item btn-hide" id="btn-prev">
+            <img src="./images/left.svg" alt="" class="btn-item btn-hide" id="btn-next">
+        </div>
+        <div id="slider-indicator">
+            <span class="indicator-item indicator-active"></span>
+            <span class="indicator-item"></span>
+            <span class="indicator-item"></span>
+            <span class="indicator-item"></span>
+            <span class="indicator-item"></span>
+        </div>
+    </div>
+    <script src="./scripts/common.js"></script>
+    <script src="./scripts/util.js"></script>
+    <script>
+        ; (function () {
+            var container = document.getElementById("container");
+            var sliderList = document.getElementById("slider-list");
+            var btnNext = document.getElementById("btn-next");
+            var btnPrev = document.getElementById("btn-prev");
+            var indicatorItems = document.getElementsByClassName("indicator-item");
+            var imgWidth = 500;
+            var sliding = false;
+            var autoPlayTimer = 0;
+            var currentIndex = 0;
+
+
+            common.on(btnNext, "click", function () {
+                sliding ? undefined : animate(imgWidth, -1, 1, 1000);
+            })
+
+
+            common.on(btnPrev, "click", function () {
+                sliding ? undefined : animate(imgWidth, 1, 1, 1000);
+            })
+
+
+            common.on(container, "mouseover", function () {
+                console.log(autoPlayTimer, "stop")
+                clearTimeout(autoPlayTimer);
+                btnPrev.classList.toggle("btn-hide");
+                btnPrev.classList.toggle("btn-show");
+                btnNext.classList.toggle("btn-hide");
+                btnNext.classList.toggle("btn-show");
+            })
+
+
+            common.on(container, "mouseout", function () {
+                autoPlay();
+                btnPrev.classList.toggle("btn-hide");
+                btnPrev.classList.toggle("btn-show");
+                btnNext.classList.toggle("btn-hide");
+                btnNext.classList.toggle("btn-show");
+            })
+
+            Array.prototype.forEach.call(indicatorItems, function(value, index){
+                common.on(value, "click", function(){
+                    if(sliding){
+                        return;
+                    }
+                    var temp = currentIndex - index;
+                    var dir = Math.sign(temp);
+                    var count = Math.abs(temp);
+                    animate(imgWidth, dir, count, 1000);
+                })
+            })
+
+            function animate(offset, dir, count, duration) {
+                light(dir, count);
+                sliding = true;
+                var temp = 0;
+                var delay = 20;
+                var step = (offset * count) / (duration / delay);
+                (function timeout() {
+                    setTimeout(function () {
+                        if (temp === offset * count) {
+                            sliding = false;
+                            resetPosition();
+                            return;
+                        }
+                        util.left(sliderList, step * dir);
+                        temp += step;
+                        timeout();
+                    }, delay);
+                })();
+            }
+
+            function light(dir, count){
+                currentIndex = currentIndex - (dir * count);
+                if(currentIndex > 4){
+                    currentIndex = 0
+                }else if(currentIndex < 0){
+                    currentIndex = 4;
+                }
+                Array.prototype.forEach.call(indicatorItems, function(value){
+                    value.classList.remove("indicator-active");
+                });
+                indicatorItems[currentIndex].classList.add("indicator-active");
+            }
+
+            function resetPosition() {
+                if (util.left(sliderList) === -3000) {
+                    util.left(sliderList, 2500);
+                } else if (util.left(sliderList) === 0) {
+                    util.left(sliderList, -2500);
+                }
+            }
+
+
+            function autoPlay() {
+                autoPlayTimer = setTimeout(function () {
+                    btnNext.click();
+                    autoPlay();
+                }, 3000);
+                console.log(autoPlayTimer, "auto");
+            }
+
+
+            autoPlay();
+        }());
+    </script>
+</body>
+
+</html>

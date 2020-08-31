@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #container{
+            width: 500px;
+            height: 275px;
+            outline: 2px solid salmon;
+            position: absolute;
+            left: 50%;
+            top: 150px;
+            margin: 0 0 0 -250px;
+            overflow: hidden;
+        }
+        #slider-list{
+            width: 3500px;
+            position: absolute;
+            top: 0;
+            left: -500px;
+        }
+        .slider-item{
+            display: block;
+            float: left;
+        }
+        #btn-prev,
+        #btn-next{
+            position: absolute;
+            width: 50px;
+            top: 108px;
+            cursor: pointer;
+        }
+        #btn-prev{
+            left: 5px;
+        }
+        #btn-next{
+            right: 5px;
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="slider-list">
+            <img src="./images/5.jpg" alt="" class="slider-item item-5">
+            <img src="./images/1.jpg" alt="" class="slider-item item-1">
+            <img src="./images/2.jpg" alt="" class="slider-item item-2">
+            <img src="./images/3.jpg" alt="" class="slider-item item-3">
+            <img src="./images/4.jpg" alt="" class="slider-item item-4">
+            <img src="./images/5.jpg" alt="" class="slider-item item-5">
+            <img src="./images/1.jpg" alt="" class="slider-item item-1">
+        </div>
+        <div id="slider-btn">
+            <img src="./images/left.svg" alt="" class="btn-item" id="btn-prev">
+            <img src="./images/left.svg" alt="" class="btn-item" id="btn-next">
+        </div>
+    </div>
+    <script src="./scripts/common.js"></script>
+    <script src="./scripts/util.js"></script>
+    <script>
+        ;(function(){
+            var sliderList = document.getElementById("slider-list");
+            var btnNext = document.getElementById("btn-next");
+            var btnPrev = document.getElementById("btn-prev");
+            var imgWidth = 500;
+
+            common.on(btnNext, "click", function(){
+                animate(imgWidth, -1, 1, 1000);
+            })
+
+            common.on(btnPrev, "click", function(){
+                animate(imgWidth, 1, 1, 1000);
+            })
+
+            function animate(offset, dir, count, duration) {
+                var temp = 0;
+                var step = 500 / (duration / 20);
+                (function timeout(){
+                    setTimeout(function(){
+                        if(temp === offset * count){
+                            resetPosition();
+                            return;
+                        }
+                        util.left(sliderList, step * dir);
+                        temp += step;
+                        timeout();
+                    }, 20);
+                })();
+            }
+
+            function resetPosition(){
+                if(util.left(sliderList) === -3000){
+                    util.left(sliderList, 2500);
+                }else if(util.left(sliderList) === 0){
+                    util.left(sliderList, -2500);
+                }
+            }
+        }());
+    </script>
+</body>
+</html>
